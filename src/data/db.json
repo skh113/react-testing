@@ -391,6 +391,12 @@
       "price": 10,
       "categoryId": 1,
       "id": 63
+    },
+    {
+      "id": 64,
+      "name": "Airpods",
+      "price": 199.9,
+      "categoryId": 1
     }
   ]
 }
