@@ -2,15 +2,14 @@ import { render, screen } from "@testing-library/react";
 import ProductImageGallery from "../../src/components/ProductImageGallery";
 
 describe("ProductImageGallery", () => {
-	it("should not be rendered if list is empty", () => {
-		const { container } = render(<ProductImageGallery imageUrls={[]} />);
+	it("should render nothing when imageUrls is empty", () => {
+		const result = render(<ProductImageGallery imageUrls={[]} />);
 
-		expect(container).toBeEmptyDOMElement();
+		expect(result.container).toBeEmptyDOMElement();
 	});
 
-	it("should render list of images with right src attr", () => {
-		const imageUrls: string[] = ["123", "456", "789"];
-
+	it("should render a list of images with correct attributes", () => {
+		const imageUrls = ["123", "456", "789"];
 		render(<ProductImageGallery imageUrls={imageUrls} />);
 
 		const images = screen.getAllByRole("img");

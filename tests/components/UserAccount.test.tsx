@@ -3,27 +3,25 @@ import UserAccount from "../../src/components/UserAccount";
 import { User } from "../../src/entities";
 
 describe("UserAccount", () => {
-	it("should render the user name when user is provided.", () => {
-		const user: User = { id: 1, name: "Keyvan" };
+	const adminUser: User = { id: 1, name: "Mosh", isAdmin: true };
+	const user: User = { id: 1, name: "Keyvan" };
 
+	it("should display username correctly.", () => {
 		render(<UserAccount user={user} />);
 
-		expect(screen.getByText(user.name)).toBeInTheDocument();
+		const name = screen.getByText(/keyvan/i);
+		expect(name).toBeInTheDocument();
 	});
 
-	it("should render edit button if user has isAdmin prop.", () => {
-		const user: User = { id: 1, name: "Keyvan", isAdmin: true };
-
-		render(<UserAccount user={user} />);
+	it("should display edit button if the user is an admin.", () => {
+		render(<UserAccount user={adminUser} />);
 
 		const button = screen.getByRole("button");
 		expect(button).toBeInTheDocument();
 		expect(button).toHaveTextContent(/edit/i);
 	});
 
-	it("should not render edit button if user does not have isAdmin prop.", () => {
-		const user: User = { id: 1, name: "Keyvan" };
-
+	it("should not display edit button if user is not an admin.", () => {
 		render(<UserAccount user={user} />);
 
 		const button = screen.queryByRole("button");
