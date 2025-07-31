@@ -7,7 +7,7 @@ import { delay, http, HttpResponse } from "msw";
 import ProductList from "../../src/components/ProductList";
 import { db } from "../mocks/db";
 import { server } from "../mocks/server";
-import { QueryClient, QueryClientProvider } from "react-query";
+import AllProviders from "../AllProviders";
 
 describe("ProductList", () => {
 	const productIds: number[] = [];
@@ -22,24 +22,8 @@ describe("ProductList", () => {
 		db.product.deleteMany({ where: { id: { in: productIds } } });
 	});
 
-	const renderComponent = () => {
-		const client = new QueryClient({
-			defaultOptions: {
-				queries: {
-					retry: false,
-				},
-			},
-		});
-
-		render(
-			<QueryClientProvider client={client}>
-				<ProductList />
-			</QueryClientProvider>
-		);
-	};
-
 	it("should render the list of products", async () => {
-		renderComponent();
+		render(<ProductList />, { wrapper: AllProviders });
 
 		const items = await screen.findAllByRole("listitem");
 		expect(items.length).toBeGreaterThan(0);
@@ -48,7 +32,7 @@ describe("ProductList", () => {
 	it("should render the empty state message if no products is found", async () => {
 		server.use(http.get("/products", () => HttpResponse.json([])));
 
-		renderComponent();
+		render(<ProductList />, { wrapper: AllProviders });
 
 		const emptyStateMessage = await screen.findByText(/no products/i);
 		expect(emptyStateMessage).toBeInTheDocument();
@@ -57,7 +41,7 @@ describe("ProductList", () => {
 	it("should render an error message when there is an error", async () => {
 		server.use(http.get("/products", () => HttpResponse.error()));
 
-		renderComponent();
+		render(<ProductList />, { wrapper: AllProviders });
 
 		expect(await screen.findByText(/error/i)).toBeInTheDocument();
 	});
@@ -70,13 +54,13 @@ describe("ProductList", () => {
 			})
 		);
 
-		renderComponent();
+		render(<ProductList />, { wrapper: AllProviders });
 
 		expect(await screen.findByText(/loading/i)).toBeInTheDocument();
 	});
 
 	it("should remove the loading indicator after data is fetched", async () => {
-		renderComponent();
+		render(<ProductList />, { wrapper: AllProviders });
 
 		await waitForElementToBeRemoved(() => screen.queryByText(/loading/i));
 	});
@@ -84,7 +68,7 @@ describe("ProductList", () => {
 	it("should remove the loading indicator if data fetching fails", async () => {
 		server.use(http.get("/products", () => HttpResponse.error()));
 
-		renderComponent();
+		render(<ProductList />, { wrapper: AllProviders });
 
 		await waitForElementToBeRemoved(() => screen.queryByText(/loading/i));
 	});
