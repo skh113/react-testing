@@ -48,4 +48,17 @@ describe("ProductDetail", () => {
 		const message = await screen.findByText(/not found/i);
 		expect(message).toBeInTheDocument();
 	});
+
+	it("should render error message when there is a general error", async () => {
+		server.use(
+			http.get("/products/:id", () => {
+				return HttpResponse.error();
+			})
+		);
+
+		render(<ProductDetail productId={productId} />);
+
+		const error = await screen.findByText(/error/i);
+		expect(error).toBeInTheDocument();
+	});
 });

@@ -24,15 +24,19 @@ describe("ProductList", () => {
 	});
 
 	it("should render the empty state message if no products is found", async () => {
-		server.use(
-			http.get("/products", () => {
-				return HttpResponse.json([]);
-			})
-		);
+		server.use(http.get("/products", () => HttpResponse.json([])));
 
 		render(<ProductList />);
 
 		const emptyStateMessage = await screen.findByText(/no products/i);
 		expect(emptyStateMessage).toBeInTheDocument();
+	});
+
+	it("should render an error message when there is an error", async () => {
+		server.use(http.get("/products", () => HttpResponse.error()));
+
+		render(<ProductList />);
+
+		expect(await screen.findByText(/error/i)).toBeInTheDocument();
 	});
 });
