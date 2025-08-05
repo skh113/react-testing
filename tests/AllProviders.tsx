@@ -1,3 +1,4 @@
+import { Theme } from "@radix-ui/themes";
 import { PropsWithChildren } from "react";
 import { QueryClient, QueryClientProvider } from "react-query";
 
@@ -10,7 +11,11 @@ const AllProviders = ({ children }: PropsWithChildren) => {
 		},
 	});
 
-	return <QueryClientProvider client={client}>{children}</QueryClientProvider>;
+	return (
+		<QueryClientProvider client={client}>
+			<Theme>{children}</Theme>
+		</QueryClientProvider>
+	);
 };
 
 export default AllProviders;
