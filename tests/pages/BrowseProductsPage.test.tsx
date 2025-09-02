@@ -5,19 +5,43 @@ import {
 } from "@testing-library/react";
 import { server } from "../mocks/server";
 import { delay, http, HttpResponse } from "msw";
-import AllProviders from "../AllProviders";
 import BrowseProducts from "../../src/pages/BrowseProductsPage";
+import { Theme } from "@radix-ui/themes";
+import userEvent from "@testing-library/user-event";
+import { Category } from "../../src/entities";
+import { db } from "../mocks/db";
 
 describe("BrowseProductsPage", () => {
-	// Loading
-	it("should render loading categories skeletons while fetching data", () => {
+	const categories: Category[] = [];
+
+	beforeAll(() => {
+		[1, 2].forEach(() => {
+			categories.push(db.category.create());
+		});
+	});
+
+	afterAll(() => {
+		const categoryIds = categories.map((category) => category.id);
+		db.category.deleteMany({ where: { id: { in: categoryIds } } });
+	});
+
+	const renderComponent = () => {
+		render(
+			<Theme>
+				<BrowseProducts />
+			</Theme>
+		);
+	};
+
+	// Loading Categories
+	it("should show a loading skeleton when fetching categories", () => {
 		server.use(
 			http.get("/categories", async () => {
 				await delay();
 				return HttpResponse.json([]);
 			})
 		);
-		render(<BrowseProducts />, { wrapper: AllProviders });
+		renderComponent();
 
 		expect(
 			screen.getByRole("progressbar", { name: /categories/i })
@@ -25,7 +49,7 @@ describe("BrowseProductsPage", () => {
 	});
 
 	it("should remove the loading indicator after categories data is fetched", async () => {
-		render(<BrowseProducts />, { wrapper: AllProviders });
+		renderComponent();
 
 		await waitForElementToBeRemoved(() =>
 			screen.getByRole("progressbar", { name: /categories/i })
@@ -35,21 +59,22 @@ describe("BrowseProductsPage", () => {
 	it("should remove the loading indicator if categories data fetching fails", async () => {
 		server.use(http.get("/categories", () => HttpResponse.error()));
 
-		render(<BrowseProducts />, { wrapper: AllProviders });
+		renderComponent();
 
 		await waitForElementToBeRemoved(() =>
 			screen.getByRole("progressbar", { name: /categories/i })
 		);
 	});
 
-	it("should render loading products skeletons while fetching data", () => {
+	// Loading Products
+	it("should show a loading skeleton when fetching products", () => {
 		server.use(
 			http.get("/products", async () => {
 				await delay();
 				return HttpResponse.json([]);
 			})
 		);
-		render(<BrowseProducts />, { wrapper: AllProviders });
+		renderComponent();
 
 		expect(
 			screen.getByRole("progressbar", { name: /products/i })
@@ -57,7 +82,7 @@ describe("BrowseProductsPage", () => {
 	});
 
 	it("should remove the loading indicator after products data is fetched", async () => {
-		render(<BrowseProducts />, { wrapper: AllProviders });
+		renderComponent();
 
 		await waitForElementToBeRemoved(() =>
 			screen.getByRole("progressbar", { name: /products/i })
@@ -67,7 +92,7 @@ describe("BrowseProductsPage", () => {
 	it("should remove the loading indicator if products data fetching fails", async () => {
 		server.use(http.get("/products", () => HttpResponse.error()));
 
-		render(<BrowseProducts />, { wrapper: AllProviders });
+		renderComponent();
 
 		await waitForElementToBeRemoved(() =>
 			screen.getByRole("progressbar", { name: /products/i })
@@ -78,7 +103,7 @@ describe("BrowseProductsPage", () => {
 	it("should not render an error if categories cannot be fetched", async () => {
 		server.use(http.get("/categories", () => HttpResponse.error()));
 
-		render(<BrowseProducts />, { wrapper: AllProviders });
+		renderComponent();
 
 		await waitForElementToBeRemoved(() =>
 			screen.queryByRole("progressbar", { name: /categories/i })
@@ -93,9 +118,24 @@ describe("BrowseProductsPage", () => {
 	it("should render an error if products cannot be fetched", async () => {
 		server.use(http.get("/products", () => HttpResponse.error()));
 
-		render(<BrowseProducts />, { wrapper: AllProviders });
+		renderComponent();
 
 		expect(await screen.findByText(/error/i)).toBeInTheDocument();
+	});
+
+	// Rendering
+	it("should render the categories for filters", async () => {
+		// 18
+		renderComponent();
+
+		const combobox = await screen.findByRole("combobox");
+		expect(combobox).toBeInTheDocument();
+
+		const user = userEvent.setup();
+		await user.click(combobox);
+
+		const options = await screen.findAllByRole("option");
+		expect(options.length).toBeGreaterThan(0);
 	});
 
 	it.todo(
