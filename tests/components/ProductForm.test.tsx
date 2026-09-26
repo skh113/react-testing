@@ -59,6 +59,7 @@ describe("ProductForm", () => {
 					if (product.price !== undefined)
 						await user.type(priceInput, product.price.toString());
 
+					await user.tab();
 					await user.click(categoryInput);
 					const categories = screen.queryAllByRole("option");
 					await user.click(categories[0]);
