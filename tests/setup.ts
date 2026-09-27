@@ -1,10 +1,12 @@
 import "@testing-library/jest-dom/vitest";
 import ResizeObserver from "resize-observer-polyfill";
-import {server } from "./mocks/server"
+import { server } from "./mocks/server";
 
-beforeAll(() => server.listen())
-afterEach(() => server.restoreHandlers())
-afterAll(() => server.close())
+beforeAll(() => server.listen());
+afterEach(() => server.restoreHandlers());
+afterAll(() => server.close());
+
+vi.mock("@auth0/auth0-react");
 
 global.ResizeObserver = ResizeObserver;
 
