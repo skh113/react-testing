@@ -62,7 +62,7 @@ function BrowseProducts() {
 		const skeletons = [1, 2, 3, 4, 5];
 		const { data: products, isLoading, error } = productsQuery;
 
-		if (error) return <div>Error: {error.message}</div>;
+		if (error) return <div>Error: {error}</div>;
 
 		const visibleProducts = selectedCategoryId
 			? products!.filter((p) => p.categoryId === selectedCategoryId)
